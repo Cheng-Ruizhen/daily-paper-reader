@@ -2837,13 +2837,23 @@ window.$docsify = {
 
       const isPaperHref = (href) => {
         const h = normalizeHref(href);
-        // 只匹配论文页：#/YYYYMM/DD/slug
-        return /^#\/\d{6}\/\d{2}\/(?!README$).+/i.test(h);
+        // 匹配论文页：
+        // - 传统路径：#/YYYYMM/DD/slug
+        // - 区间路径：#/YYYYMMDD-YYYYMMDD/slug
+        return /^#\/(?:\d{6}\/\d{2}|\d{8}-\d{8})\/(?!README$).+/i.test(h);
       };
 
       const isReportHref = (href) => {
         const h = normalizeHref(href);
-        return /^#\/\d{6}\/\d{2}\/README$/i.test(h);
+        // 匹配日报页：
+        // - 传统路径：#/YYYYMM/DD/README
+        // - 区间路径：#/YYYYMMDD-YYYYMMDD/README
+        return /^#\/(?:\d{6}\/\d{2}|\d{8}-\d{8})\/README$/i.test(h);
+      };
+
+      const isPaperHrefFallback = (href) => {
+        const h = normalizeHref(href);
+        return h.startsWith('#/') && h.includes('/') && !/\/README$/i.test(h);
       };
 
       const collectPaperHrefsFromSidebar = () => {
@@ -3312,9 +3322,10 @@ window.$docsify = {
             const link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
             if (!link) return;
             const href = link.getAttribute('href') || '';
-            if (!isPaperHref(href)) return;
-
             const target = normalizeHref(href);
+            if (!target || !isPaperHref(target) && !isPaperHrefFallback(target)) {
+              return;
+            }
             if (!target) return;
             if (target === (DPR_NAV_STATE.currentHref || '')) return;
 
@@ -3703,7 +3714,9 @@ window.$docsify = {
           // - 分组展开/收起有 max-height 过渡，布局稳定后再校准一次
           setTimeout(() => {
             try {
-              syncSidebarActiveIndicator({ animate: false });
+              requestAnimationFrame(() => {
+                syncSidebarActiveIndicator({ animate: false });
+              });
             } finally {
               DPR_SIDEBAR_ACTIVE_INDICATOR.justMoved = false;
             }
