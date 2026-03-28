@@ -43,17 +43,12 @@ subscriptions:
           keyword_cn: 强化学习
           query: R
       intent_queries:
-        - query: consider domain knowledge when design molecule
-          query_cn: 在设计分子的过程中考虑领域知识
-          enabled: true
-          source: manual
-          note: ''
         - query: use RL or GFlowNet to design molecule
           query_cn: 利用强化学习或GFlowNet进行分子设计
           enabled: true
           source: manual
           note: ''
-      updated_at: '2026-03-28T08:39:58.570Z'
+      updated_at: '2026-03-28T09:55:13.468Z'
 source_backends:
   arxiv:
     papers_table: arxiv_papers
